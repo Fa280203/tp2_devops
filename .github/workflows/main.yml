@@ -16,7 +16,16 @@ jobs:
         run: docker build -t my-docker-app:latest .
 
       - name: Run Container and Execute Tests
-        run: docker run --rm my-docker-app:latest ./run-tests.sh
+        run: docker run --rm my-docker-app:latest /run-tests.sh
+
+      - name: Save Docker Image
+        run: docker save my-docker-app:latest -o image.tar
+
+      - name: Upload Image Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-image
+          path: image.tar
 
   deploy:
     runs-on: ubuntu-latest
@@ -25,6 +34,15 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
+
+      - name: Download Image Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-image
+          path: .
+
+      - name: Load Docker Image
+        run: docker load -i image.tar
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
