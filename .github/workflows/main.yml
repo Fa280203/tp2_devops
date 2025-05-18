@@ -34,8 +34,3 @@ jobs:
 
       - name: Push Docker Image
         run: docker push mydockerhubuser/my-docker-app:latest
-
-      - name: Deploy to Kubernetes
-        run: |
-          echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > kubeconfig
-          kubectl --kubeconfig=kubeconfig apply -f k8s/deployment.yaml
